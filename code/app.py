@@ -11,10 +11,9 @@ import matplotlib.pyplot as plt
 # Set page configuration
 st.set_page_config(
     menu_items={
-        "About": "For More Information\n" + "githublink"
+        "About": "For More Information\n" + "https://github.com/EsraKorkmazz/FINANCE-STREAMLIT-APP"
     }
 )
-
 
 path = os.path.dirname(__file__)
 folder_path = os.path.join(path,'../models')
