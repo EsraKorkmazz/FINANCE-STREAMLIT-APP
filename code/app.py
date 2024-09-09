@@ -8,6 +8,7 @@ from src import transform_resp
 import seaborn as sns 
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
+import zlib
 
 # Set page configuration
 st.set_page_config(
