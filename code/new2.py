@@ -22,10 +22,11 @@ def data_show():
     ]
     
     # get stock data from yfinance
-    data = yf.download(bist100symbols, start = '2022-01-01', end = '2024-01-01')['Adj Close']
-    if data.empty:
-        st.write("No data available.")
-        return
+    try:
+        data = yf.download(bist100symbols, start = '2022-01-01', end = '2024-01-01', progress=False)['Adj Close']
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
+        data = pd.DataFrame() 
  
     # daily returns
     returns = data.pct_change().dropna()
