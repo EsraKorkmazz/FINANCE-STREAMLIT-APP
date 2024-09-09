@@ -66,7 +66,7 @@ if menu == "HOME PAGE":
 
     - **Credit Score Insights:** Explore insights and predictions related to credit scores. This tool aims to help you understand and manage your credit health better.
     """)
-    st.image("/Users/esra/Desktop/FINANCE-STREAMLIT-APP/images/home.png",  width=700)
+    st.image("images/home.png",  width=700)
 
 elif menu == "PORTFOLIO OPTIMIZATION":
     st.title("Portfolio Optimization Page")
