@@ -179,11 +179,22 @@ elif menu == "CREDIT SCORE":
                 st.markdown('This credit score indicates that this person is unlikely to repay a loan, so the risk of lending them credit is high.')
             plt.gca().add_patch(t1)
             figure.pyplot(f)
-            prob_fig, ax = plt.subplots()
-
+            
             with st.expander('Click to see how certain the algorithm was'):
-                plt.pie(model.predict_proba(output)[0], labels=['Poor', 'Regular', 'Good'], autopct='%.0f%%')
-                st.pyplot(prob_fig)
+                probabilities = model.predict_proba(output)[0]
+                labels = ['Poor', 'Regular', 'Good']
+
+                # Create a fully filled pie chart
+                prob_fig = go.Figure(data=[go.Pie(labels=labels, values=probabilities)])
+
+                # Update layout with title and no center annotation
+                prob_fig.update_layout(
+                    title_text='Prediction Probabilities',
+                    margin=dict(t=50, b=0, l=0, r=0)  # Adjust margins as needed
+                )
+
+                # Display the plot
+                st.plotly_chart(prob_fig, use_container_width=True)
             
             with st.expander('Click to see how much each feature weight'):
                 importance = model.feature_importances_
@@ -211,12 +222,30 @@ elif menu == "CREDIT SCORE":
                 importance_fig = pd.concat([importance_fig, Loans], axis=0)
                 importance_fig.sort_values(by='importance', ascending=True, inplace=True)
 
-                # plotting the figure
-                importance_figure, ax = plt.subplots()
-                bars = ax.barh('index', 'importance', data=importance_fig)
-                ax.bar_label(bars)
-                plt.ylabel('')
-                plt.xlabel('')
-                plt.xlim(0,20)
-                sns.despine(right=True, top=True)
-                st.pyplot(importance_figure)
+
+                importance_figure = go.Figure()
+                importance_figure.add_trace(go.Bar(
+                    y=importance_fig['index'],  # Features
+                    x=importance_fig['importance'],  # Importance values
+                    orientation='h',  # Horizontal bars
+                    marker=dict(color='royalblue'),  # Color of the bars
+                    text=importance_fig['importance'].apply(lambda x: f'{x:.2f}%'),  # Add percentage labels
+                    textposition='inside'  # Position text inside the bars
+                ))
+
+                # Update layout
+                importance_figure.update_layout(
+                    title_text='Feature Importance',
+                    xaxis_title='Importance (%)',
+                    yaxis_title='Features',
+                    yaxis=dict(title='', tickvals=importance_fig['index']),  # Feature names on y-axis
+                    xaxis=dict(range=[0, 20]),  # X-axis range
+                    template='plotly_white',  # Clean background
+                    margin=dict(l=0, r=0, t=50, b=0)  # Adjust margins as needed
+                )
+
+                # Display the Plotly chart
+                st.plotly_chart(importance_figure, use_container_width=True)
+
+
+                
