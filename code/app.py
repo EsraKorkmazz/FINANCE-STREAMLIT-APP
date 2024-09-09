@@ -7,12 +7,19 @@ import os
 from src import transform_resp
 import seaborn as sns 
 import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 
 # Set page configuration
 st.set_page_config(
     menu_items={
         "About": "For More Information\n" + "https://github.com/EsraKorkmazz/FINANCE-STREAMLIT-APP"
     }
+)
+
+st.markdown(
+    """
+    [![GitHub](https://img.shields.io/badge/GitHub-Repo-blue?logo=github)](https://github.com/EsraKorkmazz/FINANCE-STREAMLIT-APP/)
+    """
 )
 
 path = os.path.dirname(__file__)
@@ -45,7 +52,7 @@ st.sidebar.header("Menü")
 menu = st.sidebar.radio(
     "Select an Option",
     ["HOME PAGE", "PORTFOLIO OPTIMIZATION", "CREDIT SCORE"],
-    format_func=lambda x: {"HOME PAGE": "🏠 HOME PAGE","PORTFOLIO OPTIMIZATION": "💲PORTFOLIO OPTIMIZATION","CREDIT SCORE": "🏦 Credit Score"}[x]
+    format_func=lambda x: {"HOME PAGE": "🏠 HOME PAGE","PORTFOLIO OPTIMIZATION": "💲PORTFOLIO OPTIMIZATION","CREDIT SCORE": "🏦 CREDIT SCORE"}[x]
 )
 if menu == "HOME PAGE":
     st.title("Welcome to Our Financial Dashboard!")
