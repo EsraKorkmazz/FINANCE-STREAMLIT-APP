@@ -69,7 +69,11 @@ if menu == "HOME PAGE":
     st.image("images/home.png",  width=700)
 
 elif menu == "PORTFOLIO OPTIMIZATION":
-    st.title("Portfolio Optimization Page")
+    st.title("Portfolio Optimization")
+    st.markdown('''
+                Portfolio optimization is about choosing the best mix of investments to maximize returns while minimizing risk. In this app, we focus on optimizing a portfolio based on the BIST30, which consists of the top 30 companies on the Istanbul Stock Exchange. By analyzing the historical performance and relationships between these stocks, the app helps you build a portfolio that aims to achieve the highest return for a given level of risk or the lowest risk for a target return.
+
+Explore how you can optimize your investments in BIST30 using data-driven strategies! ''')
     data_show()
 
 elif menu == "CREDIT SCORE":
