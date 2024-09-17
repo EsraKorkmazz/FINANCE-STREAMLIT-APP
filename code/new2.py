@@ -35,6 +35,8 @@ def data_show():
     mean_returns = returns.mean()
     cov_matrix = returns.cov()
 
+
+    st.markdown("Please choose your risk tolerance level and click the 'Optimize Portfolio' button!")
     risk_tolerance = st.slider('Risk Tolerance Level (0 = Conservative, 100 = Aggressive)', 0, 100, 50)
 
     if 'optimized_weights' not in st.session_state:
@@ -67,6 +69,9 @@ def data_show():
                 st.write(f"{stock}: {weight * 100:.2f}%")
 
     st.subheader("Expected Portfolio Metrics")
+    st.markdown('''
+                The "Expected Portfolio Metrics" section shows key indicators of your portfolio’s performance, including the expected return and volatility. The expected return represents the potential profit your portfolio might generate based on historical data, while volatility measures the risk or fluctuations in your portfolio's value over time. The graph helps visualize these metrics, giving you insight into the balance between risk and return for your chosen portfolio.
+                ''')
     if st.button('Show Expected Portfolio Metrics'):
         portfolio_return = np.sum(mean_returns * st.session_state.optimized_weights) * 252
         portfolio_volatility = np.sqrt(np.dot(st.session_state.optimized_weights.T, np.dot(cov_matrix, st.session_state.optimized_weights))) * np.sqrt(252)
@@ -80,12 +85,18 @@ def data_show():
         st.pyplot(plt)
 
     st.subheader("Visualizing Portfolio")
+    st.markdown('''
+                When you visualize your portfolio, you get a graphical representation of how your investments are distributed across different assets. This helps you understand your portfolio’s balance and the relative weight of each asset.
+                ''')
     if st.button('Show Visualizing Portfolio'):
         weights_df = pd.DataFrame(st.session_state.optimized_weights, index=bist100symbols, columns=['Weight'])
         fig = px.pie(weights_df, values='Weight', names=weights_df.index, title='Optimized Portfolio Weights')
         st.plotly_chart(fig)
 
     st.subheader("Efficient Frontier")
+    st.markdown('''
+                The Efficient Frontier is a key concept in portfolio optimization. It shows the set of optimal portfolios that offer the highest expected return for a given level of risk. By plotting your portfolio against the efficient frontier, you can see how well your portfolio is performing compared to the best possible combinations of risk and return. The goal is to adjust your portfolio so that it lies on or near the efficient frontier for maximum efficiency.
+                ''')
     if st.button('Show Efficient Frontier'):
         def efficient_frontier():
             num_portfolios = 10000
