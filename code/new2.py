@@ -46,6 +46,8 @@ def data_show():
     # risk and return calculation
     mean_returns = returns.mean()
     cov_matrix = returns.cov()
+    
+    num_assets = len(mean_returns)
 
     st.markdown("Please choose your risk tolerance level and click the 'Optimize Portfolio' button!")
     risk_tolerance = st.slider('Risk Tolerance Level (0 = Conservative, 100 = Aggressive)', 0, 100, 50)
@@ -64,12 +66,11 @@ def data_show():
             portfolio_volatility = np.sqrt(np.dot(weights.T, np.dot(cov_matrix, weights)))
             return - (portfolio_return - risk_aversion * portfolio_volatility)
 
-        num_assets = len(bist100symbols)
+        initial_weights = num_assets * [1. / num_assets]
+        
         args = (mean_returns, cov_matrix, risk_aversion)
         constraints = ({'type': 'eq', 'fun': lambda x: np.sum(x) - 1})
         bounds = tuple((0, 1) for _ in range(num_assets))
-
-        initial_weights = num_assets * [1. / num_assets]
 
         opt_result = minimize(portfolio_objective, initial_weights, args=args,
                             method='SLSQP', bounds=bounds, constraints=constraints)
