@@ -57,6 +57,9 @@ def data_show():
         risk_aversion = 1 - (risk_tolerance / 100)
 
         def portfolio_objective(weights, mean_returns, cov_matrix, risk_aversion):
+            st.write(f"mean_returns shape: {mean_returns.shape}")
+            st.write(f"weights shape: {weights.shape}")
+            
             portfolio_return = np.sum(mean_returns * weights)
             portfolio_volatility = np.sqrt(np.dot(weights.T, np.dot(cov_matrix, weights)))
             return - (portfolio_return - risk_aversion * portfolio_volatility)
