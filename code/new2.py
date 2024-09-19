@@ -23,7 +23,7 @@ def data_show():
     
     # get stock data from yfinance
     try:
-        data = yf.download(bist100symbols, start = '2022-01-01', end = '2024-01-01', progress=False)['Adj Close']
+        data = yf.download(bist100symbols, start = '2023-01-01', end = '2024-01-01', progress=False)['Adj Close']
     except Exception as e:
         st.error(f"An error occurred: {e}")
         data = pd.DataFrame() 
