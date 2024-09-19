@@ -35,7 +35,6 @@ def data_show():
     mean_returns = returns.mean()
     cov_matrix = returns.cov()
 
-
     st.markdown("Please choose your risk tolerance level and click the 'Optimize Portfolio' button!")
     risk_tolerance = st.slider('Risk Tolerance Level (0 = Conservative, 100 = Aggressive)', 0, 100, 50)
 
@@ -67,6 +66,23 @@ def data_show():
             weight = float(st.session_state.optimized_weights[i])  
             if weight > 0:
                 st.write(f"{stock}: {weight * 100:.2f}%")
+                
+        # Create a dataframe for downloading
+        portfolio_data = pd.DataFrame({
+            'Stock': bist100symbols,
+            'Weight': st.session_state.optimized_weights
+        })
+
+        # Convert dataframe to CSV
+        csv_data = portfolio_data.to_csv(index=False)
+
+        # Provide the download link
+        st.download_button(
+            label="Download Portfolio Weights as CSV",
+            data=csv_data,
+            file_name="optimized_portfolio_weights.csv",
+            mime="text/csv"
+        )
 
     st.subheader("Expected Portfolio Metrics")
     st.markdown('''
