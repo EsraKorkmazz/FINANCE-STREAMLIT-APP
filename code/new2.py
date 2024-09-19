@@ -30,6 +30,9 @@ def data_show():
  
     # daily returns
     returns = data.pct_change().dropna()
+    if returns.empty:
+        st.error("Calculated returns data is empty. Check the downloaded data.")
+        return
     
     # risk and return calculation
     mean_returns = returns.mean()
@@ -59,7 +62,11 @@ def data_show():
         opt_result = minimize(portfolio_objective, initial_weights, args=args,
                             method='SLSQP', bounds=bounds, constraints=constraints)
 
-        st.session_state.optimized_weights = opt_result.x
+        if opt_result.success:
+            st.session_state.optimized_weights = opt_result.x
+        else:
+            st.error("Optimization failed. Check the constraints or bounds.")
+            return
 
         st.markdown("**Optimized Portfolio Weights:**")
         for i, stock in enumerate(bist100symbols):
