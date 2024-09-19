@@ -16,7 +16,7 @@ def data_show():
         "GUBRF.IS", "PETKM.IS", "BRSAN.IS", "BRYAT.IS", "DOAS.IS", "AKSEN.IS", "TABGD.IS",
         "ALARK.IS", "MAVI.IS", "DOHOL.IS", "EKGYO.IS", "AKSA.IS", "SOKM.IS", "ECILC.IS",
         "BTCIM.IS", "KONYA.IS", "EGEEN.IS", "TSKB.IS", "KONTR.IS", "REEDR.IS", "CIMSA.IS",
-        "VESBE.IS", "HEKTS.IS", "ENERY.IS", "KCAER.IS", "SMRTG.IS", "CWENE.IS", "KRDMD.IS",
+        "VESBE.IS", "ENERY.IS", "KCAER.IS", "SMRTG.IS", "CWENE.IS", "KRDMD.IS",
         "KOZAA.IS", "MIATK.IS", "ZOREN.IS", "VESTL.IS", "AKFYE.IS", "BFREN.IS", "ALFAS.IS",
         "KLSER.IS", "ECZYT.IS", "AGROT.IS", "GESAN.IS", "EUPWR.IS", "KLMSN.IS", "OSTIM.IS"
     ]
@@ -35,6 +35,10 @@ def data_show():
     if data.empty:
         st.error("All downloaded data is empty. Please check the stock symbols or data source.")
         return
+    
+    missing_stocks = set(bist100symbols) - set(data.columns)
+    if missing_stocks:
+        st.warning(f"Failed to download data for: {', '.join(missing_stocks)}")
 
     # daily returns
     returns = data.pct_change().dropna()
@@ -46,8 +50,7 @@ def data_show():
     # risk and return calculation
     mean_returns = returns.mean()
     cov_matrix = returns.cov()
-    
-    
+
 
     st.markdown("Please choose your risk tolerance level and click the 'Optimize Portfolio' button!")
     risk_tolerance = st.slider('Risk Tolerance Level (0 = Conservative, 100 = Aggressive)', 0, 100, 50)
@@ -66,7 +69,7 @@ def data_show():
             portfolio_volatility = np.sqrt(np.dot(weights.T, np.dot(cov_matrix, weights)))
             return - (portfolio_return - risk_aversion * portfolio_volatility)
 
-        num_assets = len(bist100symbols)
+        num_assets = len(data.columns)
         args = (mean_returns, cov_matrix, risk_aversion)
         constraints = ({'type': 'eq', 'fun': lambda x: np.sum(x) - 1})
         bounds = tuple((0, 1) for _ in range(num_assets))
