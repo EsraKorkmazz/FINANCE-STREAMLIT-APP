@@ -21,28 +21,24 @@ def data_show():
         "KLSER.IS", "ECZYT.IS", "AGROT.IS", "GESAN.IS", "EUPWR.IS", "KLMSN.IS", "OSTIM.IS"
     ]
     
-    # Attempt to download data, skipping tickers that fail
-    valid_symbols = []
-    stock_data = pd.DataFrame()
+    # get stock data from yfinance
+    try:
+        data = yf.download(bist100symbols, start='2023-01-01', end='2024-01-01', progress=False)['Adj Close']
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
+        data = pd.DataFrame()
 
-    for symbol in bist100symbols:
-        try:
-            # Download stock data
-            data = yf.download(symbol, start='2023-01-01', end='2024-01-01', progress=False)['Adj Close']
-            if not data.empty:
-                stock_data[symbol] = data  # Append valid data
-                valid_symbols.append(symbol)
-            else:
-                st.warning(f"No data for {symbol}. Skipping.")
-        except Exception as e:
-            st.warning(f"Failed to download {symbol}: {e}")
-    
-    if stock_data.empty:
-        st.error("No valid data available for the selected period.")
+    # Remove columns with missing data (i.e., symbols with no available data)
+    data = data.dropna(axis=1, how='all')
+
+    # Check if we have enough valid data
+    if data.empty:
+        st.error("All downloaded data is empty. Please check the stock symbols or data source.")
         return
 
-    # Daily returns calculation
-    returns = stock_data.pct_change().dropna()
+    # daily returns
+    returns = data.pct_change().dropna()
+
     if returns.empty:
         st.error("Calculated returns data is empty. Check the downloaded data.")
         return
