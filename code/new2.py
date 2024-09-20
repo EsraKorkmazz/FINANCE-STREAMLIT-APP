@@ -41,7 +41,7 @@ def data_show():
         st.warning(f"Failed to download data for: {', '.join(missing_stocks)}")
 
     # daily returns
-    returns = data.pct_change().dropna()
+    returns = data.pct_change(fill_method=None).dropna()
 
     if returns.empty:
         st.error("Calculated returns data is empty. Check the downloaded data.")
