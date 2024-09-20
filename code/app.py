@@ -5,10 +5,9 @@ import pandas as pd
 from zipfile import ZipFile
 import os
 from src import transform_resp
-import seaborn as sns 
+import seaborn as sns
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
-import zlib
 
 # Set page configuration
 st.set_page_config(
@@ -24,7 +23,8 @@ st.markdown(
 )
 
 path = os.path.dirname(__file__)
-folder_path = os.path.join(path,'../models')
+folder_path = os.path.join(path, '../models')
+
 @st.cache_data
 def unzip_load(name):
     try:
@@ -55,6 +55,7 @@ menu = st.sidebar.radio(
     ["HOME PAGE", "PORTFOLIO OPTIMIZATION", "CREDIT SCORE"],
     format_func=lambda x: {"HOME PAGE": "🏠 HOME PAGE","PORTFOLIO OPTIMIZATION": "💲PORTFOLIO OPTIMIZATION","CREDIT SCORE": "🏦 CREDIT SCORE"}[x]
 )
+
 if menu == "HOME PAGE":
     st.title("Welcome to Our Financial Dashboard!")
     st.write("""
@@ -78,8 +79,7 @@ Explore how you can optimize your investments in BIST30 using data-driven strate
 
 elif menu == "CREDIT SCORE":
     st.title('Credit Score Analysis')
-    scaler = unzip_load('scaler')
-    model = unzip_load('model')    
+    best_model = unzip_load('best_model')    
 
     age_default = None
     annual_income_default = 0.00
@@ -165,9 +165,8 @@ elif menu == "CREDIT SCORE":
             }
             output = transform_resp(resp)
             output = pd.DataFrame(output, index=[0])
-            output.loc[:,:] = scaler.transform(output)
 
-            credit_score = model.predict(output)[0]
+            credit_score = best_model.predict(output)[0]
             
             if credit_score == 1:
                 st.balloons()
@@ -176,17 +175,19 @@ elif menu == "CREDIT SCORE":
                 st.markdown('This credit score indicates that this person is likely to repay a loan, so the risk of giving them credit is low.')
             elif credit_score == 0:
                 t1 = plt.Polygon([[3, 0.5], [3.5, 0], [2.5, 0]], color='black')
-                placeholder.markdown('Your credit score is **REGULAR**.')
-                st.markdown('This credit score indicates that this person is likely to repay a loan, but can occasionally miss some payments. Meaning that the risk of giving them credit is medium.')
+                placeholder.markdown('Your credit score is **REGULAR**! There is room for improvement.')
+                st.markdown('This credit score indicates that the risk of giving credit to this person is moderate.')
             elif credit_score == -1:
                 t1 = plt.Polygon([[1, 0.5], [1.5, 0], [0.5, 0]], color='black')
-                placeholder.markdown('Your credit score is **POOR**.')
-                st.markdown('This credit score indicates that this person is unlikely to repay a loan, so the risk of lending them credit is high.')
-            plt.gca().add_patch(t1)
-            figure.pyplot(f)
+                placeholder.markdown('Your credit score is **POOR**! Take action to improve it.')
+                st.markdown('This credit score indicates that this person poses a high risk for lenders.')
+
+            f.gca().add_patch(t1)
+            st.pyplot(f)
+
             
             with st.expander('Click to see how certain the algorithm was'):
-                probabilities = model.predict_proba(output)[0]
+                probabilities = best_model.predict_proba(output)[0]
                 labels = ['Poor', 'Regular', 'Good']
 
                 # Create a fully filled pie chart
@@ -202,7 +203,7 @@ elif menu == "CREDIT SCORE":
                 st.plotly_chart(prob_fig, use_container_width=True)
             
             with st.expander('Click to see how much each feature weight'):
-                importance = model.feature_importances_
+                importance = best_model.feature_importances_
                 importance = pd.DataFrame(importance)
                 columns = pd.DataFrame(['Age', 'Annual_Income', 'Num_Bank_Accounts',
                                         'Num_Credit_Card', 'Num_of_Delayed_Payment',
