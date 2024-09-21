@@ -7,56 +7,123 @@ from scipy.optimize import minimize
 import matplotlib.pyplot as plt
 
 def data_show():
-    bist100symbols = [
-        "GARAN.IS", "KCHOL.IS", "THYAO.IS", "ISCTR.IS", "BIMAS.IS", "TUPRS.IS", "FROTO.IS",
-        "AKBNK.IS", "ASELS.IS", "ENKAI.IS", "YKBNK.IS", "SASA.IS", "TCELL.IS", "CCOLA.IS",
-        "SAHOL.IS", "VAKBN.IS", "TTKOM.IS", "EREGL.IS", "AEFES.IS", "SISE.IS", "TOASO.IS",
-        "PGSUS.IS", "HALKB.IS", "ARCLK.IS", "MGROS.IS", "AGHOL.IS", "OYAKC.IS", "TAVHL.IS",
-        "ASTOR.IS", "KOZAL.IS", "ENJSA.IS", "TTRAK.IS", "TURSG.IS", "ULKER.IS", "ISMEN.IS",
-        "GUBRF.IS", "PETKM.IS", "BRSAN.IS", "BRYAT.IS", "DOAS.IS", "AKSEN.IS", "TABGD.IS",
-        "ALARK.IS", "MAVI.IS", "DOHOL.IS", "EKGYO.IS", "AKSA.IS", "SOKM.IS", "ECILC.IS",
-        "BTCIM.IS", "KONYA.IS", "EGEEN.IS", "TSKB.IS", "KONTR.IS", "REEDR.IS", "CIMSA.IS",
-        "VESBE.IS", "ENERY.IS", "KCAER.IS", "SMRTG.IS", "CWENE.IS", "KRDMD.IS",
-        "KOZAA.IS", "MIATK.IS", "ZOREN.IS", "VESTL.IS", "AKFYE.IS", "BFREN.IS", "ALFAS.IS",
-        "KLSER.IS", "ECZYT.IS", "AGROT.IS", "GESAN.IS", "EUPWR.IS", "KLMSN.IS", "OSTIM.IS"
-    ]
-    
-    # get stock data from yfinance
+    nasdaq_stocks = [
+    'AAPL',  # Apple Inc.
+    'AMZN',  # Amazon.com, Inc.
+    'GOOGL', # Alphabet Inc. (Class A)
+    'MSFT',  # Microsoft Corporation
+    'TSLA',  # Tesla, Inc.
+    'NFLX',  # Netflix, Inc.
+    'NVDA',  # NVIDIA Corporation
+    'INTC',  # Intel Corporation
+    'CSCO',  # Cisco Systems, Inc.
+    'CMCSA', # Comcast Corporation
+    'WBD',   # Warner Bros. Discovery, Inc.
+    'CSX',   # CSX Corporation
+    'KHC',   # The Kraft Heinz Company
+    'BKR',   # Baker Hughes Company
+    'KDP',   # Keurig Dr Pepper Inc.
+    'GFS',   # GlobalFoundries Inc.
+    'EXC',   # Exelon Corporation
+    'MNST',  # Monster Beverage Corporation
+    'CPRT',  # Copart, Inc.
+    'XEL',   # Xcel Energy Inc.
+    'MRNA',  # Moderna, Inc.
+    'ON',    # ON Semiconductor Corporation
+    'DXCM',  # DexCom, Inc.
+    'FAST',  # Fastenal Company
+    'DLTR',  # Dollar Tree, Inc.
+    'MRVL',  # Marvell Technology, Inc.
+    'MDLZ',  # Mondelez International, Inc.
+    'CTSH',  # Cognizant Technology Solutions
+    'MCHP',  # Microchip Technology Inc.
+    'FTNT',  # Fortinet, Inc.
+    'PYPL',  # PayPal Holdings, Inc.
+    'CSGP',  # CoStar Group, Inc.
+    'AZN',   # AstraZeneca PLC
+    'CCEP',  # Coca-Cola Europacific Partners PLC
+    'GILD',  # Gilead Sciences, Inc.
+    'MU',    # Micron Technology, Inc.
+    'GEHC',  # GE HealthCare Technologies Inc.
+    'SBUX',  # Starbucks Corporation
+    'PDD',   # PDD Holdings Inc.
+    'AEP',   # American Electric Power Company
+    'TTD',   # The Trade Desk, Inc.
+    'DDOG',  # Datadog, Inc.
+    'ABNB',  # Airbnb, Inc.
+    'ILMN',  # Illumina, Inc.
+    'PAYX',  # Paychex, Inc.
+    'DASH',  # DoorDash, Inc.
+    'ARM',   # Arm Holdings PLC
+    'EA',    # Electronic Arts Inc.
+    'TTWO',  # Take-Two Interactive Software, Inc.
+    'ROST',  # Ross Stores, Inc.
+    'AMD',   # Advanced Micro Devices, Inc.
+    'TEAM',  # Atlassian Corporation
+    'GOOG',  # Alphabet Inc. (Class C)
+    'QCOM',  # Qualcomm Incorporated
+    'PEP',   # PepsiCo, Inc.
+    'AVGO',  # Broadcom Inc.
+    'ZS',    # Zscaler, Inc.
+    'FANG',  # Diamondback Energy, Inc.
+    'ODFL',  # Old Dominion Freight Line, Inc.
+    'BIIB',  # Biogen Inc.
+    'TMUS',  # T-Mobile US, Inc.
+    'TXN',   # Texas Instruments Incorporated
+    'HON',   # Honeywell International Inc.
+    'CTAS',  # Cintas Corporation
+    'CDW',   # CDW Corporation
+    'ADBE',  # Adobe Inc.
+    'AMGN',  # Amgen Inc.
+    'NKE',   # NIKE, Inc.
+    'COST',  # Costco Wholesale Corporation
+    'INTU',  # Intuit Inc.
+    'ISRG',  # Intuitive Surgical, Inc.
+    'LRCX',  # Lam Research Corporation
+    'ASML',  # ASML Holding N.V.
+    'VRTX',  # Vertex Pharmaceuticals Incorporated
+    'REGN',  # Regeneron Pharmaceuticals, Inc.
+    'BIDU',  # Baidu, Inc.
+    'ZM',    # Zoom Video Communications, Inc.
+    'ADP'    # Automatic Data Processing, Inc.
+]
+
+
+    # Get stock data from yfinance
     try:
-        data = yf.download(bist100symbols, start='2023-01-01', end='2024-01-01', progress=False)['Adj Close']
+        data = yf.download(nasdaq_stocks, start='2023-01-01', end='2024-01-01', progress=False)['Adj Close']
     except Exception as e:
         st.error(f"An error occurred: {e}")
         data = pd.DataFrame()
 
-    # Remove columns with missing data (i.e., symbols with no available data)
+    # Remove columns with missing data
     data = data.dropna(axis=1, how='all')
 
     # Check if we have enough valid data
     if data.empty:
         st.error("All downloaded data is empty. Please check the stock symbols or data source.")
         return
-    
-    missing_stocks = set(bist100symbols) - set(data.columns)
+
+    missing_stocks = set(nasdaq_stocks) - set(data.columns)
     if missing_stocks:
         st.warning(f"Failed to download data for: {', '.join(missing_stocks)}")
 
-    # daily returns
+    # Daily returns
     returns = data.pct_change(fill_method=None).dropna()
 
     if returns.empty:
         st.error("Calculated returns data is empty. Check the downloaded data.")
         return
-    
-    # risk and return calculation
+
+    # Risk and return calculation
     mean_returns = returns.mean()
     cov_matrix = returns.cov()
-
 
     st.markdown("Please choose your risk tolerance level and click the 'Optimize Portfolio' button!")
     risk_tolerance = st.slider('Risk Tolerance Level (0 = Conservative, 100 = Aggressive)', 0, 100, 50)
 
     if 'optimized_weights' not in st.session_state:
-        st.session_state.optimized_weights = np.zeros(len(bist100symbols))
+        st.session_state.optimized_weights = np.zeros(len(data.columns))
 
     if st.button('Optimize Portfolio'):
         risk_aversion = 1 - (risk_tolerance / 100)
@@ -74,7 +141,7 @@ def data_show():
         initial_weights = num_assets * [1. / num_assets]
 
         opt_result = minimize(portfolio_objective, initial_weights, args=args,
-                            method='SLSQP', bounds=bounds, constraints=constraints)
+                              method='SLSQP', bounds=bounds, constraints=constraints)
 
         if opt_result.success:
             st.session_state.optimized_weights = opt_result.x
@@ -83,15 +150,17 @@ def data_show():
             return
 
         st.markdown("**Optimized Portfolio Weights:**")
-        for i, stock in enumerate(bist100symbols):
-            weight = float(st.session_state.optimized_weights[i])  
+        num_stocks = len(data.columns)
+
+        for i in range(num_stocks):
+            weight = float(st.session_state.optimized_weights[i])
             if weight > 0:
-                st.write(f"{stock}: {weight * 100:.2f}%")
-                
-        # Create a dataframe for downloading
+                st.write(f"{data.columns[i]}: {weight * 100:.2f}%")
+
+        # Create a dataframe for downloading using data.columns
         portfolio_data = pd.DataFrame({
-            'Stock': bist100symbols,
-            'Weight': st.session_state.optimized_weights
+            'Stock': data.columns,
+            'Weight': st.session_state.optimized_weights[:len(data.columns)]
         })
 
         # Convert dataframe to CSV
@@ -114,6 +183,7 @@ def data_show():
         portfolio_volatility = np.sqrt(np.dot(st.session_state.optimized_weights.T, np.dot(cov_matrix, st.session_state.optimized_weights))) * np.sqrt(252)
         st.write(f"Expected Portfolio Return: {portfolio_return:.2%}")
         st.write(f"Expected Portfolio Volatility: {portfolio_volatility:.2%}")
+        
         # Plot Expected Portfolio Return vs Volatility
         plt.figure(figsize=(8, 6))
         plt.bar(['Return', 'Volatility'], [portfolio_return, portfolio_volatility], color=['blue', 'orange'])
@@ -126,7 +196,7 @@ def data_show():
                 When you visualize your portfolio, you get a graphical representation of how your investments are distributed across different assets. This helps you understand your portfolio’s balance and the relative weight of each asset.
                 ''')
     if st.button('Show Visualizing Portfolio'):
-        weights_df = pd.DataFrame(st.session_state.optimized_weights, index=bist100symbols, columns=['Weight'])
+        weights_df = pd.DataFrame(st.session_state.optimized_weights, index=data.columns, columns=['Weight'])
         fig = px.pie(weights_df, values='Weight', names=weights_df.index, title='Optimized Portfolio Weights')
         st.plotly_chart(fig)
 
@@ -141,7 +211,7 @@ def data_show():
             weights_record = []
 
             for i in range(num_portfolios):
-                weights = np.random.random(len(bist100symbols))
+                weights = np.random.random(len(data.columns))
                 weights /= np.sum(weights)
                 weights_record.append(weights)
 
@@ -174,5 +244,6 @@ def data_show():
             plt.title('Efficient Frontier')
             plt.legend()
             st.pyplot(plt)
+
         efficient_frontier()
 

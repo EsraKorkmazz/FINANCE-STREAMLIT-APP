@@ -1,10 +1,10 @@
+import pandas as pd
+
 def transform_resp(resp):
     def yes_no(column):
-        if resp[column] == 'Yes':
-            return 1
-        else:
-            return 0
-    
+        return 1 if resp[column] == 'Yes' else 0
+
+    # Initialize loans dictionary
     loans = {
         'Auto Loan': 0,
         'Credit-Builder Loan': 0,
@@ -16,20 +16,13 @@ def transform_resp(resp):
         'Payday Loan': 0
     }
 
-    if resp['loans'] == None:
-        loans['Auto Loan'] = 0
-        loans['Credit-Builder Loan'] = 0
-        loans['Personal Loan'] = 0
-        loans['Home Equity Loan'] = 0
-        loans['Mortgage Loan'] = 0
-        loans['Student Loan'] = 0
-        loans['Debt Consolidation Loan'] = 0
-        loans['Payday Loan'] = 0
-    else:
+    # Check if loans are provided
+    if resp['loans']:
         for key_ans in loans.keys():
             if key_ans in resp['loans']:
                 loans[key_ans] = 1
 
+    # Prepare output DataFrame
     output = {
         'Age': resp['age'],
         'Annual_Income': resp['annual_income'],
@@ -51,4 +44,4 @@ def transform_resp(resp):
         'Payment_of_Min_Amount_Yes': yes_no('minimum_payment')
     }
 
-    return output
+    return pd.DataFrame([output])  # Return a DataFrame with one row
