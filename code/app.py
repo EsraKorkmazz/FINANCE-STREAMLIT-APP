@@ -79,7 +79,7 @@ if menu == "HOME PAGE":
 elif menu == "PORTFOLIO OPTIMIZATION":
     st.title("Portfolio Optimization")
     st.markdown('''
-                Portfolio optimization is about choosing the best mix of investments to maximize returns while minimizing risk. This app helps you optimize your portfolio based on the NASDAQ.
+                Portfolio optimization involves selecting the optimal mix of investments to maximize returns while minimizing risk. This app assists users in optimizing their portfolios based on NASDAQ stocks.
     ''')
     data_show()
 
@@ -91,17 +91,17 @@ elif menu == "CREDIT SCORE":
                 The purpose of our project is to allow the user to see how different factors affect their credit score.
     ''')
 
-    age_default = None
-    annual_income_default = 0.00
-    accounts_default = 0
-    credit_cards_default = 0
-    delayed_payments_default = 0
-    credit_card_ratio_default = 0.00
-    emi_monthly_default = 0.00
-    credit_history_default = 0
-    loans_default = None
-    missed_payment_default = 0
-    minimum_payment_default = 0
+    #age_default = None
+    #annual_income_default = 0.00
+    #accounts_default = 0
+    #credit_cards_default = 0
+    #delayed_payments_default = 0
+    #credit_card_ratio_default = 0.00
+    #emi_monthly_default = 0.00
+    #credit_history_default = 0
+    #loans_default = None
+    #missed_payment_default = 0
+    #minimum_payment_default = 0
 
     st.header('Credit Score Form')
     age = st.slider('What is your age?', min_value=18, max_value=100, step=1)
@@ -112,14 +112,13 @@ elif menu == "CREDIT SCORE":
     credit_card_ratio = st.slider('What is your credit card utilization ratio?', min_value=0.00, max_value=100.00)
     emi_monthly = st.number_input('How much EMI do you pay monthly?', min_value=0.00, max_value=5000.00)
     credit_history = st.number_input('How many months old is your credit history?', min_value=0, max_value=500, step=1)
-    loans = st.multiselect('Which loans do you have?', ['Auto Loan', 'Credit-Builder Loan', 'Personal Loan',
-                                                'Home Equity Loan', 'Mortgage Loan', 'Student Loan',
-                                                'Debt Consolidation Loan', 'Payday Loan'])
+    loans = st.multiselect('Which loans do you have?', ['Mortgage Loan'])
     missed_payment = st.radio('Have you missed any payments in the last 12 months?', ['Yes', 'No'], index=0)
     minimum_payment = st.radio('Have you paid the minimum amount on at least one of your credit cards?', ['Yes', 'No'], index=0)
 
+    
+    #['Auto Loan', 'Credit-Builder Loan', 'Personal Loan','Home Equity Loan', 'Mortgage Loan', 'Student Loan','Debt Consolidation Loan', 'Payday Loan'])
     run = st.button('Run the numbers!')
-
     st.header('Credit Score Results')
     
     col1, col2 = st.columns([3, 2])  
@@ -148,8 +147,6 @@ elif menu == "CREDIT SCORE":
         ax.set(xlim=(0, 6))
         sns.despine(left=True, bottom=True)
 
-        #figure = st.pyplot(f)
-
     with col1:
 
         placeholder = st.empty()
@@ -170,7 +167,6 @@ elif menu == "CREDIT SCORE":
             }
             output = transform_resp(resp)
             output = pd.DataFrame(output, index=[0])
-
             credit_score = best_model.predict(output)[0]
             
             if credit_score == 1:
@@ -202,15 +198,14 @@ elif menu == "CREDIT SCORE":
                 columns = pd.DataFrame(['Age', 'Annual_Income', 'Num_Bank_Accounts',
                                         'Num_Credit_Card', 'Num_of_Delayed_Payment',
                                         'Credit_Utilization_Ratio', 'Total_EMI_per_month',
-                                        'Credit_History_Age_Formated','Personal_Loan',
-                                        'Mortgage_Loan', 'Student_Loan', 'Debt_Consolidation_Loan',
+                                        'Credit_History_Age_Formated',
+                                        'Mortgage_Loan',
                                         'Missed_Payment_Day', 'Payment_of_Min_Amount_Yes'])
 
                 importance = pd.concat([importance, columns], axis=1)
                 importance.columns = ['importance', 'index']
                 importance_fig = round(importance.set_index('index')*100.00, 2)
-                loans = ['Personal_Loan','Mortgage_Loan', 'Student_Loan',
-                        'Debt_Consolidation_Loan']
+                loans = ['Mortgage_Loan']
 
                 # summing the loans
                 Loans = importance_fig.loc[loans].sum().reset_index()

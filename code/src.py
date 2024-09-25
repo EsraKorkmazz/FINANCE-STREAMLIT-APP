@@ -8,10 +8,7 @@ def transform_resp(resp):
 
     # Initialize loans dictionary
     loans = {
-        'Personal Loan': 0,
-        'Mortgage Loan': 0,
-        'Student Loan': 0,
-        'Debt Consolidation Loan': 0
+        'Mortgage Loan': 0
     }
 
     # Populate loans based on user input
@@ -32,10 +29,7 @@ def transform_resp(resp):
         'Credit_Utilization_Ratio': resp['credit_card_ratio'],
         'Total_EMI_per_month': resp['emi_monthly'],
         'Credit_History_Age_Formated': resp['credit_history'],
-        'Personal_Loan': loans['Personal Loan'],
         'Mortgage_Loan': loans['Mortgage Loan'],
-        'Student_Loan': loans['Student Loan'],
-        'Debt_Consolidation_Loan': loans['Debt Consolidation Loan'],
         'Missed_Payment_Day': yes_no(resp['missed_payment']),
         'Debt_to_Income_Ratio': Debt_to_Income_Ratio,
         'Payment_of_Min_Amount_Yes': yes_no(resp['minimum_payment'])
