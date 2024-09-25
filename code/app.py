@@ -91,18 +91,6 @@ elif menu == "CREDIT SCORE":
                 The purpose of our project is to allow the user to see how different factors affect their credit score.
     ''')
 
-    #age_default = None
-    #annual_income_default = 0.00
-    #accounts_default = 0
-    #credit_cards_default = 0
-    #delayed_payments_default = 0
-    #credit_card_ratio_default = 0.00
-    #emi_monthly_default = 0.00
-    #credit_history_default = 0
-    #loans_default = None
-    #missed_payment_default = 0
-    #minimum_payment_default = 0
-
     st.header('Credit Score Form')
     age = st.slider('What is your age?', min_value=18, max_value=100, step=1)
     annual_income = st.number_input('What is your Annual Income?', min_value=0.00, max_value=300000.00)
@@ -112,12 +100,10 @@ elif menu == "CREDIT SCORE":
     credit_card_ratio = st.slider('What is your credit card utilization ratio?', min_value=0.00, max_value=100.00)
     emi_monthly = st.number_input('How much EMI do you pay monthly?', min_value=0.00, max_value=5000.00)
     credit_history = st.number_input('How many months old is your credit history?', min_value=0, max_value=500, step=1)
-    loans = st.multiselect('Which loans do you have?', ['Mortgage Loan'])
+    mortgage_loan = st.radio('Do you have a mortgage loan?',['Yes', 'No'], index=0)
     missed_payment = st.radio('Have you missed any payments in the last 12 months?', ['Yes', 'No'], index=0)
     minimum_payment = st.radio('Have you paid the minimum amount on at least one of your credit cards?', ['Yes', 'No'], index=0)
 
-    
-    #['Auto Loan', 'Credit-Builder Loan', 'Personal Loan','Home Equity Loan', 'Mortgage Loan', 'Student Loan','Debt Consolidation Loan', 'Payday Loan'])
     run = st.button('Run the numbers!')
     st.header('Credit Score Results')
     

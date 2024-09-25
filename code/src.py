@@ -6,16 +6,6 @@ def transform_resp(resp):
             raise ValueError(f"Unexpected value: {value}. Expected 'Yes' or 'No'.")
         return 1 if value == 'Yes' else 0
 
-    # Initialize loans dictionary
-    loans = {
-        'Mortgage Loan': 0
-    }
-
-    # Populate loans based on user input
-    if resp['loans']:
-        for loan_type in loans.keys():
-            if loan_type in resp['loans']:
-                loans[loan_type] = 1
     
     Debt_to_Income_Ratio = resp['emi_monthly'] * 12 / resp['annual_income'] if resp['annual_income'] > 0 else 0
 
@@ -29,7 +19,7 @@ def transform_resp(resp):
         'Credit_Utilization_Ratio': resp['credit_card_ratio'],
         'Total_EMI_per_month': resp['emi_monthly'],
         'Credit_History_Age_Formated': resp['credit_history'],
-        'Mortgage_Loan': loans['Mortgage Loan'],
+        'Mortgage_Loan': yes_no(resp['mortgage_loan']),
         'Missed_Payment_Day': yes_no(resp['missed_payment']),
         'Debt_to_Income_Ratio': Debt_to_Income_Ratio,
         'Payment_of_Min_Amount_Yes': yes_no(resp['minimum_payment'])
