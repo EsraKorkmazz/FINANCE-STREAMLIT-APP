@@ -27,7 +27,6 @@ def data_show():
     'EXC',   # Exelon Corporation
     'MNST',  # Monster Beverage Corporation
     'CPRT',  # Copart, Inc.
-    'XEL',   # Xcel Energy Inc.
     'MRNA',  # Moderna, Inc.
     'ON',    # ON Semiconductor Corporation
     'DXCM',  # DexCom, Inc.
@@ -50,7 +49,6 @@ def data_show():
     'AEP',   # American Electric Power Company
     'TTD',   # The Trade Desk, Inc.
     'DDOG',  # Datadog, Inc.
-    'ABNB',  # Airbnb, Inc.
     'ILMN',  # Illumina, Inc.
     'PAYX',  # Paychex, Inc.
     'DASH',  # DoorDash, Inc.
@@ -87,7 +85,6 @@ def data_show():
     'ZM',    # Zoom Video Communications, Inc.
     'ADP'    # Automatic Data Processing, Inc.
 ]
-
 
     # Get stock data from yfinance
     try:
