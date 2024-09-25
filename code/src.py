@@ -1,26 +1,26 @@
 import pandas as pd
 
 def transform_resp(resp):
-    def yes_no(column):
-        return 1 if resp[column] == 'Yes' else 0
+    def yes_no(value):
+        if value not in ['Yes', 'No']:
+            raise ValueError(f"Unexpected value: {value}. Expected 'Yes' or 'No'.")
+        return 1 if value == 'Yes' else 0
 
     # Initialize loans dictionary
     loans = {
-        'Auto Loan': 0,
-        'Credit-Builder Loan': 0,
         'Personal Loan': 0,
-        'Home Equity Loan': 0,
         'Mortgage Loan': 0,
         'Student Loan': 0,
-        'Debt Consolidation Loan': 0,
-        'Payday Loan': 0
+        'Debt Consolidation Loan': 0
     }
 
-    # Check if loans are provided
+    # Populate loans based on user input
     if resp['loans']:
-        for key_ans in loans.keys():
-            if key_ans in resp['loans']:
-                loans[key_ans] = 1
+        for loan_type in loans.keys():
+            if loan_type in resp['loans']:
+                loans[loan_type] = 1
+    
+    Debt_to_Income_Ratio = resp['emi_monthly'] * 12 / resp['annual_income'] if resp['annual_income'] > 0 else 0
 
     # Prepare output DataFrame
     output = {
@@ -32,16 +32,13 @@ def transform_resp(resp):
         'Credit_Utilization_Ratio': resp['credit_card_ratio'],
         'Total_EMI_per_month': resp['emi_monthly'],
         'Credit_History_Age_Formated': resp['credit_history'],
-        'Auto_Loan': loans['Auto Loan'],
-        'Credit-Builder_Loan': loans['Credit-Builder Loan'],
         'Personal_Loan': loans['Personal Loan'],
-        'Home_Equity_Loan': loans['Home Equity Loan'],
         'Mortgage_Loan': loans['Mortgage Loan'],
         'Student_Loan': loans['Student Loan'],
         'Debt_Consolidation_Loan': loans['Debt Consolidation Loan'],
-        'Payday_Loan': loans['Payday Loan'],
-        'Missed_Payment_Day': yes_no('missed_payment'),
-        'Payment_of_Min_Amount_Yes': yes_no('minimum_payment')
+        'Missed_Payment_Day': yes_no(resp['missed_payment']),
+        'Debt_to_Income_Ratio': Debt_to_Income_Ratio,
+        'Payment_of_Min_Amount_Yes': yes_no(resp['minimum_payment'])
     }
 
-    return pd.DataFrame([output])  # Return a DataFrame with one row
+    return pd.DataFrame([output])  # Return a DataFrame with one row.

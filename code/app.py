@@ -9,6 +9,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
+import joblib
 
 # Set page configuration
 st.set_page_config(
@@ -24,11 +25,11 @@ st.markdown(
 )
 
 path = os.path.dirname(__file__)
-
+model_dir = os.path.join(path, '../models/')
 @st.cache_resource
 def unzip_load(name):
     try:
-        path_zip = os.path.join(path, '../models/' + name + '.pkl.zip')
+        path_zip = os.path.join(path, '../models/' + name + '.zip')
         
         if not os.path.exists(path_zip):
             st.error(f"Zip file not found: {path_zip}")
@@ -37,10 +38,15 @@ def unzip_load(name):
         with zipfile.ZipFile(path_zip, 'r') as zip_ref:
             zip_ref.extractall('models')
         
-        path_obj = os.path.join('models', name + '.pkl')
+        model_path = os.path.join(model_dir, f'{name}.pkl')
+        #path_zip = os.path.join('models', name + '.pkl')
         
-        with open(path_obj, 'rb') as f:
-            return pickle.load(f)
+        # Load the model using joblib
+        model = joblib.load(model_path)
+        return model
+        
+        #with open(path_zip, 'rb') as f:
+            #return pickle.load(f)
     
     except Exception as e:
         st.error(f"An error occurred: {e}")
@@ -73,7 +79,7 @@ if menu == "HOME PAGE":
 elif menu == "PORTFOLIO OPTIMIZATION":
     st.title("Portfolio Optimization")
     st.markdown('''
-                Portfolio optimization is about choosing the best mix of investments to maximize returns while minimizing risk. This app helps you optimize your portfolio based on the BIST30.
+                Portfolio optimization is about choosing the best mix of investments to maximize returns while minimizing risk. This app helps you optimize your portfolio based on the NASDAQ.
     ''')
     data_show()
 
@@ -142,7 +148,7 @@ elif menu == "CREDIT SCORE":
         ax.set(xlim=(0, 6))
         sns.despine(left=True, bottom=True)
 
-        figure = st.pyplot(f)
+        #figure = st.pyplot(f)
 
     with col1:
 
@@ -190,24 +196,54 @@ elif menu == "CREDIT SCORE":
                 prob_fig.update_layout(title_text='Prediction Probabilities')
                 st.plotly_chart(prob_fig, use_container_width=True)
 
-            with st.expander('Click to see feature importance'):
+            with st.expander('Click to see how much each feature weight'):
                 importance = best_model.feature_importances_
-                importance_fig = pd.DataFrame({'Importance': importance, 'Feature': ['Age', 'Annual Income', 'Accounts',
-                                                                                    'Credit Cards', 'Delayed Payments', 
-                                                                                    'Credit Card Ratio', 'EMI Monthly',
-                                                                                    'Credit History', 'Loans',
-                                                                                    'Missed Payment', 'Minimum Payment']})
-                importance_fig.sort_values(by='Importance', ascending=True, inplace=True)
+                importance = pd.DataFrame(importance)
+                columns = pd.DataFrame(['Age', 'Annual_Income', 'Num_Bank_Accounts',
+                                        'Num_Credit_Card', 'Num_of_Delayed_Payment',
+                                        'Credit_Utilization_Ratio', 'Total_EMI_per_month',
+                                        'Credit_History_Age_Formated','Personal_Loan',
+                                        'Mortgage_Loan', 'Student_Loan', 'Debt_Consolidation_Loan',
+                                        'Missed_Payment_Day', 'Payment_of_Min_Amount_Yes'])
+
+                importance = pd.concat([importance, columns], axis=1)
+                importance.columns = ['importance', 'index']
+                importance_fig = round(importance.set_index('index')*100.00, 2)
+                loans = ['Personal_Loan','Mortgage_Loan', 'Student_Loan',
+                        'Debt_Consolidation_Loan']
+
+                # summing the loans
+                Loans = importance_fig.loc[loans].sum().reset_index()
+                Loans['index'] = 'Loans'
+                Loans.columns=['index','importance']
+                importance_fig = importance_fig.drop(loans, axis=0).reset_index()
+                importance_fig = pd.concat([importance_fig, Loans], axis=0)
+                importance_fig.sort_values(by='importance', ascending=True, inplace=True)
+
 
                 importance_figure = go.Figure()
                 importance_figure.add_trace(go.Bar(
-                    y=importance_fig['Feature'],
-                    x=importance_fig['Importance'],
-                    orientation='h',
-                    marker=dict(color='royalblue'),
-                    text=importance_fig['Importance'].apply(lambda x: f'{x:.2f}%'),
-                    textposition='inside'
+                    y=importance_fig['index'],
+                    x=importance_fig['importance'], 
+                    orientation='h', 
+                    marker=dict(color='royalblue'), 
+                    text=importance_fig['importance'].apply(lambda x: f'{x:.2f}%'),  # Add percentage labels
+                    textposition='inside'  
                 ))
-                importance_figure.update_layout(title_text='Feature Importance', xaxis_title='Importance (%)')
+
+                # Update layout
+                importance_figure.update_layout(
+                    title_text='Feature Importance',
+                    xaxis_title='Importance (%)',
+                    yaxis_title='Features',
+                    yaxis=dict(title='', tickvals=importance_fig['index']), 
+                    xaxis=dict(range=[0, 20]),
+                    template='plotly_white',
+                    margin=dict(l=0, r=0, t=50, b=0)
+                )
+
+                # Display the Plotly chart
                 st.plotly_chart(importance_figure, use_container_width=True)
 
+
+                
