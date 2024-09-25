@@ -13,7 +13,7 @@ def transform_resp(resp):
     output = {
         'Age': resp['age'],
         'Annual_Income': resp['annual_income'],
-        'Num_Bank_Accounts': resp['num_of_accounts'],
+        'Num_Bank_Accounts': resp['accounts'],
         'Num_Credit_Card': resp['credit_cards'],
         'Num_of_Delayed_Payment': resp['delayed_payments'],
         'Credit_Utilization_Ratio': resp['credit_card_ratio'],

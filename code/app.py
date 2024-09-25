@@ -94,7 +94,7 @@ elif menu == "CREDIT SCORE":
     st.header('Credit Score Form')
     age = st.slider('What is your age?', min_value=18, max_value=100, step=1)
     annual_income = st.number_input('What is your Annual Income?', min_value=0.00, max_value=300000.00)
-    num_of_accounts = st.number_input('How many bank accounts do you have?', min_value=0, max_value=20, step=1)
+    accounts = st.number_input('How many bank accounts do you have?', min_value=0, max_value=20, step=1)
     credit_cards = st.number_input('How many credit cards do you have?', min_value=0, max_value=12, step=1)
     delayed_payments = st.number_input('How many delayed payments do you have?', min_value=0, max_value=20, step=1)
     credit_card_ratio = st.slider('What is your credit card utilization ratio?', min_value=0.00, max_value=100.00)
@@ -141,7 +141,7 @@ elif menu == "CREDIT SCORE":
             resp = {
                 'age': age,
                 'annual_income': annual_income,
-                'accounts': num_of_accounts,
+                'accounts': accounts,
                 'credit_cards': credit_cards,
                 'delayed_payments': delayed_payments,
                 'credit_card_ratio': credit_card_ratio,
@@ -178,52 +178,35 @@ elif menu == "CREDIT SCORE":
                 prob_fig.update_layout(title_text='Prediction Probabilities')
                 st.plotly_chart(prob_fig, use_container_width=True)
 
-            with st.expander('Click to see how much each feature weight'):
-                importance = best_model.feature_importances_
-                importance = pd.DataFrame(importance)
-                columns = pd.DataFrame(['Age', 'Annual_Income', 'Num_Bank_Accounts',
-                                        'Num_Credit_Card', 'Num_of_Delayed_Payment',
-                                        'Credit_Utilization_Ratio', 'Total_EMI_per_month',
-                                        'Credit_History_Age_Formated',
-                                        'Mortgage_Loan','Missed_Payment_Day', 'Payment_of_Min_Amount_Yes'])
-
-                importance = pd.concat([importance, columns], axis=1)
-                importance.columns = ['importance', 'index']
-                importance_fig = round(importance.set_index('index')*100.00, 2)
-                loans = ['Mortgage_Loan']
-
-                # summing the loans
-                Loans = importance_fig.loc[loans].sum().reset_index()
-                Loans['index'] = 'Loans'
-                Loans.columns=['index','importance']
-                importance_fig = importance_fig.drop(loans, axis=0).reset_index()
-                importance_fig = pd.concat([importance_fig, Loans], axis=0)
-                importance_fig.sort_values(by='importance', ascending=True, inplace=True)
-
-
-                importance_figure = go.Figure()
-                importance_figure.add_trace(go.Bar(
-                    y=importance_fig['index'],
-                    x=importance_fig['importance'], 
-                    orientation='h', 
-                    marker=dict(color='royalblue'), 
-                    text=importance_fig['importance'].apply(lambda x: f'{x:.2f}%'),  # Add percentage labels
-                    textposition='inside'  
+            
+            importance = best_model.feature_importances_ 
+            columns = [
+                    'Age', 'Annual_Income', 'Num_Bank_Accounts', 'Num_Credit_Card',
+                    'Num_of_Delayed_Payment', 'Credit_Utilization_Ratio', 
+                    'Total_EMI_per_month', 'Credit_History_Age_Formated',
+                    'Mortgage_Loan', 'Missed_Payment_Day', 'Debt_to_Income_Ratio',
+                    'Payment_of_Min_Amount_Yes']
+            importance_df = pd.DataFrame({
+                    'Feature': columns,
+                    'Importance': importance
+                }).sort_values(by='Importance', ascending=False)
+            
+            with st.expander('Click to see how much each feature weighs'):
+                fig = go.Figure()
+                fig.add_trace(go.Bar(
+                    x=importance_df['Importance'],
+                    y=importance_df['Feature'],
+                    orientation='h'  # Yatay çubuklar için
                 ))
 
-                # Update layout
-                importance_figure.update_layout(
-                    title_text='Feature Importance',
-                    xaxis_title='Importance (%)',
+                # Grafiği başlıklandırın
+                fig.update_layout(
+                    title='Feature Importance',
+                    xaxis_title='Importance',
                     yaxis_title='Features',
-                    yaxis=dict(title='', tickvals=importance_fig['index']), 
-                    xaxis=dict(range=[0, 20]),
-                    template='plotly_white',
-                    margin=dict(l=0, r=0, t=50, b=0)
+                    showlegend=False
                 )
 
-                # Display the Plotly chart
-                st.plotly_chart(importance_figure, use_container_width=True)
+                # Grafiği gösterin
+                st.plotly_chart(fig)
 
-
-                
