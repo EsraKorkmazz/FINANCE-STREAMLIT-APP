@@ -4,7 +4,7 @@ notebook==6.4.12
 numpy==1.26.4
 pandas==2.2.2
 pickleshare==0.7.5
-scikit-learn==1.1.1
+scikit-learn==1.4.2
 seaborn==0.13.2
 streamlit==1.38.0
 yfinance==0.2.43
