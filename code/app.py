@@ -94,7 +94,7 @@ elif menu == "CREDIT SCORE":
     st.header('Credit Score Form')
     age = st.slider('What is your age?', min_value=18, max_value=100, step=1)
     annual_income = st.number_input('What is your Annual Income?', min_value=0.00, max_value=300000.00)
-    accounts = st.number_input('How many bank accounts do you have?', min_value=0, max_value=20, step=1)
+    num_of_accounts = st.number_input('How many bank accounts do you have?', min_value=0, max_value=20, step=1)
     credit_cards = st.number_input('How many credit cards do you have?', min_value=0, max_value=12, step=1)
     delayed_payments = st.number_input('How many delayed payments do you have?', min_value=0, max_value=20, step=1)
     credit_card_ratio = st.slider('What is your credit card utilization ratio?', min_value=0.00, max_value=100.00)
@@ -141,13 +141,13 @@ elif menu == "CREDIT SCORE":
             resp = {
                 'age': age,
                 'annual_income': annual_income,
-                'accounts': accounts,
+                'accounts': num_of_accounts,
                 'credit_cards': credit_cards,
                 'delayed_payments': delayed_payments,
                 'credit_card_ratio': credit_card_ratio,
                 'emi_monthly': emi_monthly,
                 'credit_history': credit_history,
-                'loans': loans,
+                'mortgage_loan': mortgage_loan,
                 'missed_payment': missed_payment,
                 'minimum_payment': minimum_payment
             }
@@ -185,8 +185,7 @@ elif menu == "CREDIT SCORE":
                                         'Num_Credit_Card', 'Num_of_Delayed_Payment',
                                         'Credit_Utilization_Ratio', 'Total_EMI_per_month',
                                         'Credit_History_Age_Formated',
-                                        'Mortgage_Loan',
-                                        'Missed_Payment_Day', 'Payment_of_Min_Amount_Yes'])
+                                        'Mortgage_Loan','Missed_Payment_Day', 'Payment_of_Min_Amount_Yes'])
 
                 importance = pd.concat([importance, columns], axis=1)
                 importance.columns = ['importance', 'index']
