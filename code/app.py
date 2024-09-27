@@ -88,7 +88,7 @@ elif menu == "CREDIT SCORE":
     best_model = unzip_load('best_model')
 
     st.markdown('''
-                The purpose of our project is to allow the user to see how different factors affect their credit score.
+                Credit score analysis involves evaluating a customer's financial behavior and credit history to predict their creditworthiness. By analyzing factors such as income, delayed payments and credit utilization machine learning models can classify individuals into categories like 'good,' 'regular,' or 'poor' credit. 
     ''')
 
     st.header('Credit Score Form')
