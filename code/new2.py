@@ -7,7 +7,23 @@ from scipy.optimize import minimize
 import matplotlib.pyplot as plt
 import time
 import warnings
+
 warnings.filterwarnings('ignore')
+
+def download_with_retry(ticker, retries=3, wait=2):
+    """Ticker bazlı veri çekme ve hata toleransı"""
+    for attempt in range(retries):
+        try:
+            data = yf.download(ticker, start='2023-01-01', end='2024-01-01', progress=False, auto_adjust=True, prepost=True, threads=False)
+            if not data.empty and 'Close' in data.columns:
+                return data['Close']
+            else:
+                st.warning(f"No data found for {ticker}. Retrying...")
+                time.sleep(wait)
+        except Exception as e:
+            st.warning(f"Failed to download {ticker} on attempt {attempt + 1}: {e}")
+            time.sleep(wait)
+    return None
 
 def data_show():
     nasdaq_stocks = [
@@ -20,52 +36,27 @@ def data_show():
         'CTAS', 'CDW', 'ADBE', 'AMGN', 'NKE', 'COST', 'INTU', 'ISRG', 'LRCX', 'ASML',
         'VRTX', 'REGN', 'BIDU', 'ZM', 'ADP'
     ]
-    for attempt in range(3):
-        try:
-            data = yf.download(
-                nasdaq_stocks,
-                start='2023-01-01',
-                end='2024-01-01',
-                progress=False,
-                group_by='ticker',
-                auto_adjust=True,
-                prepost=True,
-                threads=True
-            )
-            if not data.empty:
-                if isinstance(data.columns, pd.MultiIndex):
-                    close_data = {}
-                    for stock in nasdaq_stocks:
-                        try:
-                            if stock in data.columns.levels[0]:
-                                stock_data = data[stock]['Close']
-                                if len(stock_data.dropna()) > 200:
-                                    close_data[stock] = stock_data
-                        except:
-                            continue
-                    data = pd.DataFrame(close_data)
-                else:
-                    if 'Close' in data.columns:
-                        data = data[['Close']].rename(columns={'Close': nasdaq_stocks[0]})
-                break
+
+    close_data = {}
+    failed_stocks = []
+
+    with st.spinner('Downloading stock data...'):
+        for ticker in nasdaq_stocks:
+            stock_data = download_with_retry(ticker)
+            if stock_data is not None:
+                if len(stock_data.dropna()) > 200:
+                    close_data[ticker] = stock_data
             else:
-                st.warning(f"Attempt {attempt + 1} failed, retrying...")
-                time.sleep(2)
+                failed_stocks.append(ticker)
 
-        except Exception as e:
-            st.warning(f"Bulk download attempt {attempt + 1} failed: {str(e)}")
-            if attempt == 2:
-                raise e
-            time.sleep(3)
-    data = data.dropna(axis=1, how='all')
-
-    if data.empty:
-        st.error("All downloaded data is empty. Please check the stock symbols or data source.")
+    if not close_data:
+        st.error("Failed to download data for all stocks. Please try again later.")
         return
 
-    missing_stocks = set(nasdaq_stocks) - set(data.columns)
-    if missing_stocks:
-        st.warning(f"Failed to download data for: {', '.join(missing_stocks)}")
+    data = pd.DataFrame(close_data).dropna(axis=1, how='all')
+
+    if failed_stocks:
+        st.warning(f"Failed to download data for: {', '.join(failed_stocks)}")
 
     returns = data.pct_change(fill_method=None).dropna()
 
@@ -130,14 +121,10 @@ def data_show():
                 )
             else:
                 st.warning("No stocks selected in the optimized portfolio.")
-
         else:
             st.error("Optimization failed. Check the constraints or bounds.")
 
     st.subheader("Expected Portfolio Metrics")
-    st.markdown('''
-                The "Expected Portfolio Metrics" section shows key indicators of your portfolio’s performance, including the expected return and volatility. The expected return represents the potential profit your portfolio might generate based on historical data, while volatility measures the risk or fluctuations in your portfolio's value over time. The graph helps visualize these metrics, giving you insight into the balance between risk and return for your chosen portfolio.
-                ''')
     if st.button('Show Expected Portfolio Metrics'):
         portfolio_return = np.sum(mean_returns * st.session_state.optimized_weights) * 252
         portfolio_volatility = np.sqrt(np.dot(st.session_state.optimized_weights.T, np.dot(cov_matrix, st.session_state.optimized_weights))) * np.sqrt(252)
@@ -150,18 +137,12 @@ def data_show():
         st.pyplot(plt)
 
     st.subheader("Visualizing Portfolio")
-    st.markdown('''
-                When you visualize your portfolio, you get a graphical representation of how your investments are distributed across different assets. This helps you understand your portfolio’s balance and the relative weight of each asset.
-                ''')
     if st.button('Show Visualizing Portfolio'):
         weights_df = pd.DataFrame(st.session_state.optimized_weights, index=data.columns, columns=['Weight'])
         fig = px.pie(weights_df, values='Weight', names=weights_df.index, title='Optimized Portfolio Weights')
         st.plotly_chart(fig)
 
     st.subheader("Efficient Frontier")
-    st.markdown('''
-                The Efficient Frontier is a key concept in portfolio optimization. It shows the set of optimal portfolios that offer the highest expected return for a given level of risk. By plotting your portfolio against the efficient frontier, you can see how well your portfolio is performing compared to the best possible combinations of risk and return. The goal is to adjust your portfolio so that it lies on or near the efficient frontier for maximum efficiency.
-                ''')
     if st.button('Show Efficient Frontier'):
         def efficient_frontier():
             num_portfolios = 10000
@@ -177,20 +158,20 @@ def data_show():
                 portfolio_volatility = np.sqrt(np.dot(weights.T, np.dot(cov_matrix, weights))) * np.sqrt(252)
                 sharpe_ratio = portfolio_return / portfolio_volatility if portfolio_volatility != 0 else 0
 
-                results[0,i] = portfolio_return
-                results[1,i] = portfolio_volatility
-                results[2,i] = sharpe_ratio
+                results[0, i] = portfolio_return
+                results[1, i] = portfolio_volatility
+                results[2, i] = sharpe_ratio
 
             max_sharpe_idx = np.argmax(results[2])
-            max_sharpe_return = results[0,max_sharpe_idx]
-            max_sharpe_volatility = results[1,max_sharpe_idx]
+            max_sharpe_return = results[0, max_sharpe_idx]
+            max_sharpe_volatility = results[1, max_sharpe_idx]
 
             min_vol_idx = np.argmin(results[1])
-            min_vol_return = results[0,min_vol_idx]
-            min_vol_volatility = results[1,min_vol_idx]
+            min_vol_return = results[0, min_vol_idx]
+            min_vol_volatility = results[1, min_vol_idx]
 
             plt.figure(figsize=(10, 7))
-            plt.scatter(results[1,:], results[0,:], c=results[2,:], cmap='viridis', marker='o')
+            plt.scatter(results[1, :], results[0, :], c=results[2, :], cmap='viridis', marker='o')
             plt.colorbar(label='Sharpe Ratio')
             plt.scatter(max_sharpe_volatility, max_sharpe_return, color='r', marker='*', s=200, label='Max Sharpe Ratio')
             plt.scatter(min_vol_volatility, min_vol_return, color='g', marker='*', s=200, label='Min Volatility')
