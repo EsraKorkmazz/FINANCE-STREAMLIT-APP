@@ -5,98 +5,60 @@ import streamlit as st
 import plotly.express as px
 from scipy.optimize import minimize
 import matplotlib.pyplot as plt
+import time
+import warnings
+warnings.filterwarnings('ignore')
 
 def data_show():
     nasdaq_stocks = [
-    'AAPL',  # Apple Inc.
-    'AMZN',  # Amazon.com, Inc.
-    'GOOGL', # Alphabet Inc. (Class A)
-    'MSFT',  # Microsoft Corporation
-    'TSLA',  # Tesla, Inc.
-    'NFLX',  # Netflix, Inc.
-    'NVDA',  # NVIDIA Corporation
-    'INTC',  # Intel Corporation
-    'CSCO',  # Cisco Systems, Inc.
-    'CMCSA', # Comcast Corporation
-    'WBD',   # Warner Bros. Discovery, Inc.
-    'CSX',   # CSX Corporation
-    'KHC',   # The Kraft Heinz Company
-    'BKR',   # Baker Hughes Company
-    'KDP',   # Keurig Dr Pepper Inc.
-    'GFS',   # GlobalFoundries Inc.
-    'EXC',   # Exelon Corporation
-    'MNST',  # Monster Beverage Corporation
-    'CPRT',  # Copart, Inc.
-    'MRNA',  # Moderna, Inc.
-    'ON',    # ON Semiconductor Corporation
-    'DXCM',  # DexCom, Inc.
-    'FAST',  # Fastenal Company
-    'DLTR',  # Dollar Tree, Inc.
-    'MRVL',  # Marvell Technology, Inc.
-    'MDLZ',  # Mondelez International, Inc.
-    'CTSH',  # Cognizant Technology Solutions
-    'MCHP',  # Microchip Technology Inc.
-    'FTNT',  # Fortinet, Inc.
-    'PYPL',  # PayPal Holdings, Inc.
-    'CSGP',  # CoStar Group, Inc.
-    'AZN',   # AstraZeneca PLC
-    'CCEP',  # Coca-Cola Europacific Partners PLC
-    'GILD',  # Gilead Sciences, Inc.
-    'MU',    # Micron Technology, Inc.
-    'GEHC',  # GE HealthCare Technologies Inc.
-    'SBUX',  # Starbucks Corporation
-    'PDD',   # PDD Holdings Inc.
-    'AEP',   # American Electric Power Company
-    'TTD',   # The Trade Desk, Inc.
-    'DDOG',  # Datadog, Inc.
-    'ILMN',  # Illumina, Inc.
-    'PAYX',  # Paychex, Inc.
-    'DASH',  # DoorDash, Inc.
-    'ARM',   # Arm Holdings PLC
-    'EA',    # Electronic Arts Inc.
-    'TTWO',  # Take-Two Interactive Software, Inc.
-    'ROST',  # Ross Stores, Inc.
-    'AMD',   # Advanced Micro Devices, Inc.
-    'TEAM',  # Atlassian Corporation
-    'GOOG',  # Alphabet Inc. (Class C)
-    'QCOM',  # Qualcomm Incorporated
-    'PEP',   # PepsiCo, Inc.
-    'AVGO',  # Broadcom Inc.
-    'ZS',    # Zscaler, Inc.
-    'FANG',  # Diamondback Energy, Inc.
-    'ODFL',  # Old Dominion Freight Line, Inc.
-    'BIIB',  # Biogen Inc.
-    'TMUS',  # T-Mobile US, Inc.
-    'TXN',   # Texas Instruments Incorporated
-    'HON',   # Honeywell International Inc.
-    'CTAS',  # Cintas Corporation
-    'CDW',   # CDW Corporation
-    'ADBE',  # Adobe Inc.
-    'AMGN',  # Amgen Inc.
-    'NKE',   # NIKE, Inc.
-    'COST',  # Costco Wholesale Corporation
-    'INTU',  # Intuit Inc.
-    'ISRG',  # Intuitive Surgical, Inc.
-    'LRCX',  # Lam Research Corporation
-    'ASML',  # ASML Holding N.V.
-    'VRTX',  # Vertex Pharmaceuticals Incorporated
-    'REGN',  # Regeneron Pharmaceuticals, Inc.
-    'BIDU',  # Baidu, Inc.
-    'ZM',    # Zoom Video Communications, Inc.
-    'ADP'    # Automatic Data Processing, Inc.
-]
+        'AAPL', 'AMZN', 'GOOGL', 'MSFT', 'TSLA', 'NFLX', 'NVDA', 'INTC', 'CSCO', 'CMCSA',
+        'WBD', 'CSX', 'KHC', 'BKR', 'KDP', 'GFS', 'EXC', 'MNST', 'CPRT', 'MRNA',
+        'ON', 'DXCM', 'FAST', 'DLTR', 'MRVL', 'MDLZ', 'CTSH', 'MCHP', 'FTNT', 'PYPL',
+        'CSGP', 'AZN', 'CCEP', 'GILD', 'MU', 'GEHC', 'SBUX', 'PDD', 'AEP', 'TTD',
+        'DDOG', 'ILMN', 'PAYX', 'DASH', 'EA', 'TTWO', 'ROST', 'AMD', 'TEAM', 'GOOG',
+        'QCOM', 'PEP', 'AVGO', 'ZS', 'FANG', 'ODFL', 'BIIB', 'TMUS', 'TXN', 'HON',
+        'CTAS', 'CDW', 'ADBE', 'AMGN', 'NKE', 'COST', 'INTU', 'ISRG', 'LRCX', 'ASML',
+        'VRTX', 'REGN', 'BIDU', 'ZM', 'ADP'
+    ]
+    for attempt in range(3):
+        try:
+            data = yf.download(
+                nasdaq_stocks,
+                start='2023-01-01',
+                end='2024-01-01',
+                progress=False,
+                group_by='ticker',
+                auto_adjust=True,
+                prepost=True,
+                threads=True
+            )
+            if not data.empty:
+                if isinstance(data.columns, pd.MultiIndex):
+                    close_data = {}
+                    for stock in nasdaq_stocks:
+                        try:
+                            if stock in data.columns.levels[0]:
+                                stock_data = data[stock]['Close']
+                                if len(stock_data.dropna()) > 200:
+                                    close_data[stock] = stock_data
+                        except:
+                            continue
+                    data = pd.DataFrame(close_data)
+                else:
+                    if 'Close' in data.columns:
+                        data = data[['Close']].rename(columns={'Close': nasdaq_stocks[0]})
+                break
+            else:
+                st.warning(f"Attempt {attempt + 1} failed, retrying...")
+                time.sleep(2)
 
-    # Get stock data from yfinance
-    try:
-        data = yf.download(nasdaq_stocks, start='2023-01-01', end='2024-01-01', progress=False)['Adj Close']
-    except Exception as e:
-        st.error(f"An error occurred: {e}")
-        data = pd.DataFrame()
-
-    # Remove columns with missing data
+        except Exception as e:
+            st.warning(f"Bulk download attempt {attempt + 1} failed: {str(e)}")
+            if attempt == 2:
+                raise e
+            time.sleep(3)
     data = data.dropna(axis=1, how='all')
 
-    # Check if we have enough valid data
     if data.empty:
         st.error("All downloaded data is empty. Please check the stock symbols or data source.")
         return
@@ -105,14 +67,12 @@ def data_show():
     if missing_stocks:
         st.warning(f"Failed to download data for: {', '.join(missing_stocks)}")
 
-    # Daily returns
     returns = data.pct_change(fill_method=None).dropna()
 
     if returns.empty:
         st.error("Calculated returns data is empty. Check the downloaded data.")
         return
 
-    # Risk and return calculation
     mean_returns = returns.mean()
     cov_matrix = returns.cov()
 
@@ -134,7 +94,6 @@ def data_show():
         args = (mean_returns, cov_matrix, risk_aversion)
         constraints = ({'type': 'eq', 'fun': lambda x: np.sum(x) - 1})
         bounds = tuple((0, 1) for _ in range(num_assets))
-
         initial_weights = num_assets * [1. / num_assets]
 
         opt_result = minimize(portfolio_objective, initial_weights, args=args,
@@ -142,34 +101,38 @@ def data_show():
 
         if opt_result.success:
             st.session_state.optimized_weights = opt_result.x
+            threshold = 1e-5
+            positive_weights = {
+                data.columns[i]: w for i, w in enumerate(st.session_state.optimized_weights) if w > threshold
+            }
+
+            if positive_weights:
+                portfolio_data = pd.DataFrame({
+                    'Stock': list(positive_weights.keys()),
+                    'Weight': list(positive_weights.values())
+                })
+
+                portfolio_data['Weight'] = portfolio_data['Weight'].apply(lambda x: f"{x*100:.2f}%")
+
+                st.markdown("**Optimized Portfolio Weights:**")
+                st.table(portfolio_data)
+
+                csv_data = pd.DataFrame({
+                    'Stock': list(positive_weights.keys()),
+                    'Weight': list(positive_weights.values())
+                }).to_csv(index=False)
+
+                st.download_button(
+                    label="Download Portfolio Weights as CSV",
+                    data=csv_data,
+                    file_name="optimized_portfolio_weights.csv",
+                    mime="text/csv"
+                )
+            else:
+                st.warning("No stocks selected in the optimized portfolio.")
+
         else:
             st.error("Optimization failed. Check the constraints or bounds.")
-            return
-
-        st.markdown("**Optimized Portfolio Weights:**")
-        num_stocks = len(data.columns)
-
-        for i in range(num_stocks):
-            weight = float(st.session_state.optimized_weights[i])
-            if weight > 0:
-                st.write(f"{data.columns[i]}: {weight * 100:.2f}%")
-
-        # Create a dataframe for downloading using data.columns
-        portfolio_data = pd.DataFrame({
-            'Stock': data.columns,
-            'Weight': st.session_state.optimized_weights[:len(data.columns)]
-        })
-
-        # Convert dataframe to CSV
-        csv_data = portfolio_data.to_csv(index=False)
-
-        # Provide the download link
-        st.download_button(
-            label="Download Portfolio Weights as CSV",
-            data=csv_data,
-            file_name="optimized_portfolio_weights.csv",
-            mime="text/csv"
-        )
 
     st.subheader("Expected Portfolio Metrics")
     st.markdown('''
@@ -180,8 +143,6 @@ def data_show():
         portfolio_volatility = np.sqrt(np.dot(st.session_state.optimized_weights.T, np.dot(cov_matrix, st.session_state.optimized_weights))) * np.sqrt(252)
         st.write(f"Expected Portfolio Return: {portfolio_return:.2%}")
         st.write(f"Expected Portfolio Volatility: {portfolio_volatility:.2%}")
-        
-        # Plot Expected Portfolio Return vs Volatility
         plt.figure(figsize=(8, 6))
         plt.bar(['Return', 'Volatility'], [portfolio_return, portfolio_volatility], color=['blue', 'orange'])
         plt.ylabel('Value')
@@ -220,17 +181,14 @@ def data_show():
                 results[1,i] = portfolio_volatility
                 results[2,i] = sharpe_ratio
 
-            # Locate the portfolio with the highest Sharpe ratio
             max_sharpe_idx = np.argmax(results[2])
             max_sharpe_return = results[0,max_sharpe_idx]
             max_sharpe_volatility = results[1,max_sharpe_idx]
 
-            # Locate the portfolio with the minimum volatility
             min_vol_idx = np.argmin(results[1])
             min_vol_return = results[0,min_vol_idx]
             min_vol_volatility = results[1,min_vol_idx]
 
-            # Plot Efficient Frontier
             plt.figure(figsize=(10, 7))
             plt.scatter(results[1,:], results[0,:], c=results[2,:], cmap='viridis', marker='o')
             plt.colorbar(label='Sharpe Ratio')
@@ -243,4 +201,9 @@ def data_show():
             st.pyplot(plt)
 
         efficient_frontier()
+
+if __name__ == '__main__':
+    st.title("NASDAQ Portfolio Optimizer")
+    data_show()
+
 
